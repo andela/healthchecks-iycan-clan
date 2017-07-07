@@ -1,0 +1,27 @@
+{% extends "emails/base.html" %}
+{% load hc_extras %}
+{% block content %}
+
+Hello,<br />
+
+This is a notification sent by <a href="{% site_root %}">{% site_name %}</a>.
+<br />
+The check <strong>{{ check.name_then_code }}</strong>
+has gone <strong>{{ check.status|upper }}</strong>.
+<br /><br />
+
+Here is a summary of all your checks:
+<br />
+
+{% include "emails/summary-html.html" %}
+
+{% if show_upgrade_note %}
+<strong>P.S.</strong>
+Find this service useful? Support it by upgrading to
+a <a href="https://healthchecks.io/pricing/">premium account</a>!
+<br /><br />
+{% endif %}
+
+Thanks,<br>
+The {% escaped_site_name %} Team
+{% endblock %}
