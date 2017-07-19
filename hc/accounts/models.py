@@ -13,7 +13,7 @@ from django.utils import timezone
 from hc.lib import emails
 
 
-REPORT_PERIOD_CHOICES=(('daily',1),('weekly',7),('monthly',30))
+REPORT_PERIOD_CHOICES=((1,'daily'),(7,'weekly'),(30,'monthly'))
 
 
 class Profile(models.Model):
@@ -27,7 +27,7 @@ class Profile(models.Model):
     token = models.CharField(max_length=128, blank=True)
     api_key = models.CharField(max_length=128, blank=True)
     current_team = models.ForeignKey("self", null=True)
-    report_period = models.IntegerField(choices=REPORT_PERIOD_CHOICES,null=True)
+    report_period = models.IntegerField(choices=REPORT_PERIOD_CHOICES,null=True,default=30)
 
     def __str__(self):
         return self.team_name or self.user.email
