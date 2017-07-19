@@ -139,7 +139,11 @@ STATICFILES_FINDERS = (
 )
 COMPRESS_OFFLINE = True
 
+# Email Config
 EMAIL_BACKEND = "djmail.backends.default.EmailBackend"
+DEFAULT_FROM_EMAIL = 'noreply@my-monitoring-project.com'
+DJMAIL_REAL_BACKEND = 'sgbackend.SendGridBackend'
+SENDGRID_API_KEY = "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"
 
 # Discord integration -- override these in local_settings
 DISCORD_CLIENT_ID = None
