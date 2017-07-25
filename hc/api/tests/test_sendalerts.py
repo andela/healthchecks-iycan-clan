@@ -18,6 +18,8 @@ class SendAlertsTestCase(BaseTestCase):
 
         # Expect no exceptions--
         Command().handle_one()
+        result = check.in_grace_period()
+        self.assertTrue(result)
 
     @patch("hc.api.management.commands.sendalerts.notify_on_thread")
     def test_it_notifies_when_check_goes_down(self, mock_notify):
