@@ -3,8 +3,12 @@
 import hashlib
 import json
 import uuid
+import time
+from threading import Timer
+# import  schukle
 from datetime import datetime, timedelta as td
 
+import pause as pause
 from croniter import croniter
 from django.conf import settings
 from django.core.checks import Warning
@@ -170,6 +174,25 @@ class Check(models.Model):
             result["next_ping"] = None
 
         return result
+
+    def nag_users(self):
+        print(self.last_ping)
+        while True:
+            obj = Check.objects.filter(name=self.name).all()
+            for ob in obj:
+                pause.time(1)
+                if ob.last_ping + (ob.grace + ob.timeout) < timezone.now():
+                    self.send_alert()
+                    pause.time(5)
+                else:
+                    print("Server is up")
+
+
+
+    def configure_nag_time(self):
+        pass
+
+
 
     @classmethod
     def check(cls, **kwargs):
