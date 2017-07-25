@@ -40,9 +40,14 @@ def ping(request, code):
     # If User-Agent is longer than 200 characters, truncate it:
     ping.ua = headers.get("HTTP_USER_AGENT", "")[:200]
     ping.save()
-
+    # check.nag_users(23423)
+    # check.nag_users(2434)
+    # q = Check.objects.filter()
+    # for check in q:
+        # check.start()
     response = HttpResponse("OK")
     response["Access-Control-Allow-Origin"] = "*"
+
     return response
 
 
@@ -143,3 +148,11 @@ def badge(request, username, signature, tag):
 
     svg = get_badge_svg(tag, status)
     return HttpResponse(svg, content_type="image/svg+xml")
+
+def nag(request):
+    q = Check.objects.filter()
+    response = ''
+    for check in q:
+        check.nag_users()
+        response = str(check.__dict__)
+    return HttpResponse(response)
