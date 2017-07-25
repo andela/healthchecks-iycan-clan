@@ -247,24 +247,30 @@ $(function () {
     /*  Jobs table filter functionality */
 
     var select_filter = document.querySelector("#checks-filter");
+    /* Listen for the change event on the select box. */
     select_filter.addEventListener("change", function(event){
         filterJobs(event.target.value);
     });
 
     function filterJobs(job_type){
+        /* Store the checks-table element in the table variable. */
         var table = document.getElementById('checks-table');
+        /* Set up standardized looping of rows in older versions of mozilla. */
         var rows = [].slice.call(table.querySelectorAll("tr.checks-row"));
 
         for (var i = 0; i < rows.length; i++) {
             var status = rows[i].dataset.status;
+            /* Display all the jobs. */
             if(job_type === "all"){
                 rows[i].style.display = "";
             }
             else{
+                /* A match for the selection was found. Display the row. */
                 if(job_type.indexOf(status) == 0){
                     rows[i].style.display = "";
                 }
                 else{
+                    /* No match for the selection was found. Hide the row. */
                     rows[i].style.display = "none";
                 }
           }
