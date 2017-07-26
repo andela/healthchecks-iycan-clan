@@ -4,8 +4,7 @@ import hashlib
 import json
 import uuid
 import time
-from threading import Timer
-# import  schukle
+import _thread
 from datetime import datetime, timedelta as td
 
 import pause as pause
@@ -187,12 +186,11 @@ class Check(models.Model):
                 else:
                     print("Server is up")
 
-
+    def start_monitoring(self):
+        _thread.start_new_thread(self.nag_users, ())
 
     def configure_nag_time(self):
         pass
-
-
 
     @classmethod
     def check(cls, **kwargs):
@@ -364,6 +362,7 @@ class Channel(models.Model):
 
 
 class Notification(models.Model):
+
     class Meta:
         get_latest_by = "created"
 
