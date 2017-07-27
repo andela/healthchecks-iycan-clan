@@ -27,7 +27,7 @@ class Profile(models.Model):
     token = models.CharField(max_length=128, blank=True)
     api_key = models.CharField(max_length=128, blank=True)
     current_team = models.ForeignKey("self", null=True)
-    report_period = models.IntegerField(choices=REPORT_PERIOD_CHOICES,default=30)
+    report_period = models.IntegerField(choices=REPORT_PERIOD_CHOICES,null=30,default=30)
 
     def __str__(self):
         return self.team_name or self.user.email
