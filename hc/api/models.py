@@ -181,11 +181,9 @@ class Check(models.Model):
     def nag_users(self, name, grace, last_ping, timeout, status, nag, counter):
 
         try:
-            time_from_thread_born = math.floor(((self.get_current_time() - counter)))
+            time_from_thread_born = math.floor((self.get_current_time() - counter))
             nag_time = self.convert_dt_seconds(nag)
-            print(nag_time, time_from_thread_born)
             if last_ping + (grace + timeout) < timezone.now() and str(status) != 'new' and (time_from_thread_born % nag_time) == 0:
-                print("email", name)
                 self.send_alert()
         except Exception as e:
             pass
