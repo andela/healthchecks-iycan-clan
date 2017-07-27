@@ -10,8 +10,11 @@ from hc.api import schemas
 from hc.api.decorators import check_api_key, uuid_or_400, validate_json
 from hc.api.models import Check, Ping
 from hc.lib.badges import check_signature, get_badge_svg
+import thread
+import schedule
+import time
 
-
+# from django.contrib.auth.
 @csrf_exempt
 @uuid_or_400
 @never_cache
@@ -149,10 +152,18 @@ def badge(request, username, signature, tag):
     svg = get_badge_svg(tag, status)
     return HttpResponse(svg, content_type="image/svg+xml")
 
-def nag(request):
-    q = Check.objects.filter()
-    response = ''
+
+def get_checks(t0):
+    q = Check.objects.all()
     for check in q:
-        check.nag_users()
-        response = str(check.__dict__)
-    return HttpResponse(response)
+        check.nag_users(check.name, check.grace, check.last_ping, check.timeout, check.status, check.nag, t0)
+
+
+def schedule_nagging():
+    t0 = time.time()
+    schedule.every().seconds.do(get_checks, (t0))
+    while True:
+        schedule.run_pending()
+
+# start the nagging thread once the server has started
+thread.start_new_thread(schedule_nagging, ())
