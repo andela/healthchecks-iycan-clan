@@ -173,6 +173,7 @@ def update_timeout(request, code):
         return HttpResponseForbidden()
 
     kind = request.POST.get("kind")
+    print(request.POST)
     if kind == "simple":
         form = TimeoutForm(request.POST)
         if not form.is_valid():
@@ -181,6 +182,7 @@ def update_timeout(request, code):
         check.kind = "simple"
         check.timeout = td(seconds=form.cleaned_data["timeout"])
         check.grace = td(seconds=form.cleaned_data["grace"])
+        check.nag = td(seconds=form.cleaned_data["nag"])
     elif kind == "cron":
         form = CronForm(request.POST)
         if not form.is_valid():
@@ -190,6 +192,7 @@ def update_timeout(request, code):
         check.schedule = form.cleaned_data["schedule"]
         check.tz = form.cleaned_data["tz"]
         check.grace = td(minutes=form.cleaned_data["grace"])
+        check.nag = td(minutes=form.cleaned_data["nag"])
 
     if check.last_ping:
         check.alert_after = check.get_alert_after()
