@@ -4,7 +4,9 @@ import hashlib
 import json
 import uuid
 import time
-import _thread
+import thread
+import threading
+import math
 from datetime import datetime, timedelta as td
 
 import pause as pause
@@ -25,6 +27,7 @@ STATUSES = (
     ("paused", "Paused")
 )
 DEFAULT_TIMEOUT = td(days=1)
+DEFAULT_NAGTIME = td(days=1)
 DEFAULT_GRACE = td(hours=1)
 CHECK_KINDS = (("simple", "Simple"),
                ("cron", "Cron"))
@@ -70,6 +73,7 @@ class Check(models.Model):
     last_ping = models.DateTimeField(null=True, blank=True)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
+    nag = models.DurationField(default=DEFAULT_NAGTIME)
 
     def name_then_code(self):
         if self.name:
@@ -174,23 +178,39 @@ class Check(models.Model):
 
         return result
 
-    def nag_users(self):
-        print(self.last_ping)
-        while True:
-            obj = Check.objects.filter(name=self.name).all()
-            for ob in obj:
-                pause.time(1)
-                if ob.last_ping + (ob.grace + ob.timeout) < timezone.now():
-                    self.send_alert()
-                    pause.time(5)
-                else:
-                    print("Server is up")
+    def nag_users(self, name, grace, last_ping, timeout, status, nag, counter):
 
-    def start_monitoring(self):
-        _thread.start_new_thread(self.nag_users, ())
+        try:
+            time_from_thread_born = math.floor(((self.get_current_time() - counter)))
+            nag_time = self.convert_dt_seconds(nag)
+            print(nag_time, time_from_thread_born)
+            if last_ping + (grace + timeout) < timezone.now() and str(status) != 'new' and (time_from_thread_born % nag_time) == 0:
+                print("email", name)
+                self.send_alert()
+        except Exception as e:
+            pass
 
-    def configure_nag_time(self):
-        pass
+    def convert_dt_seconds(self, nag_time):
+        filters = [3600, 60, 1]
+        return  sum([a * b for a, b in zip(filters, map(int, str(nag_time).split(':')))])
+
+
+    def get_current_time(self):
+        t = time.time()
+        return t
+
+
+    def get_nagging_status(self, now=None):
+        """ Return "up" if the check is up or in grace, otherwise "down". """
+
+        if self.status in ("new", "paused"):
+            return self.status
+
+        if now is None:
+            now = timezone.now()
+
+        return "up" if self.get_grace_start() + self.grace + self.nag > now else "nag"
+
 
     @classmethod
     def check(cls, **kwargs):
