@@ -1,3 +1,4 @@
+import sys
 from datetime import timedelta as td
 
 from django.db.models import F
@@ -10,8 +11,11 @@ from hc.api import schemas
 from hc.api.decorators import check_api_key, uuid_or_400, validate_json
 from hc.api.models import Check, Ping
 from hc.lib.badges import check_signature, get_badge_svg
+import _thread
+import schedule
+import time
 
-
+# from django.contrib.auth.
 @csrf_exempt
 @uuid_or_400
 @never_cache
@@ -40,9 +44,9 @@ def ping(request, code):
     # If User-Agent is longer than 200 characters, truncate it:
     ping.ua = headers.get("HTTP_USER_AGENT", "")[:200]
     ping.save()
-
     response = HttpResponse("OK")
     response["Access-Control-Allow-Origin"] = "*"
+
     return response
 
 
@@ -143,3 +147,28 @@ def badge(request, username, signature, tag):
 
     svg = get_badge_svg(tag, status)
     return HttpResponse(svg, content_type="image/svg+xml")
+
+
+def get_checks():
+    q = Check.objects.all()
+    for check in q:
+        check.nag_users(check.last_ping, check.grace, check.timeout, check.get_status, check.name, check.nag)
+
+
+def schedule_nagging():
+    try:
+        print("running thread")
+        schedule.every(1).seconds.do(get_checks)
+        while True:
+            schedule.run_pending()
+    except Exception as e:
+        # print(str(e))
+        pass
+# start the nagging thread once the server has started
+
+TESTING = sys.argv[1:2] == ['test']
+if not TESTING:
+    _thread.start_new_thread(schedule_nagging, ())
+
+
+
