@@ -4,7 +4,7 @@ import hashlib
 import json
 import uuid
 import time
-import thread
+import _thread
 import schedule
 import threading
 import math
