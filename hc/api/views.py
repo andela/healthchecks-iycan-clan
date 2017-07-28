@@ -1,3 +1,4 @@
+import sys
 from datetime import timedelta as td
 
 from django.db.models import F
@@ -10,7 +11,7 @@ from hc.api import schemas
 from hc.api.decorators import check_api_key, uuid_or_400, validate_json
 from hc.api.models import Check, Ping
 from hc.lib.badges import check_signature, get_badge_svg
-import _thread
+import thread
 import schedule
 import time
 
@@ -156,16 +157,18 @@ def get_checks():
 
 def schedule_nagging():
     try:
+        print("running thread")
         schedule.every(1).seconds.do(get_checks)
         while True:
             schedule.run_pending()
-    except:
+    except Exception as e:
+        # print(str(e))
         pass
-
 # start the nagging thread once the server has started
 
-
-_thread.start_new_thread(schedule_nagging, ())
+TESTING = sys.argv[1:2] == ['test']
+if not TESTING:
+    thread.start_new_thread(schedule_nagging, ())
 
 
 
