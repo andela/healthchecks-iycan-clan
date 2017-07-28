@@ -5,6 +5,7 @@ import json
 import uuid
 import time
 import thread
+import schedule
 import threading
 import math
 from datetime import datetime, timedelta as td
@@ -74,6 +75,7 @@ class Check(models.Model):
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
     nag = models.DurationField(default=DEFAULT_NAGTIME)
+
 
     def name_then_code(self):
         if self.name:
@@ -178,24 +180,20 @@ class Check(models.Model):
 
         return result
 
-    def nag_users(self, name, grace, last_ping, timeout, status, nag, counter):
-
+    def nag_users(self, last_ping, grace, timeout, get_status, name, nag):
         try:
-            time_from_thread_born = math.floor((self.get_current_time() - counter))
-            nag_time = self.convert_dt_seconds(nag)
-            if last_ping + (grace + timeout) < timezone.now() and str(status) != 'new' and (time_from_thread_born % nag_time) == 0:
+            print(self.convert_dt_seconds(nag))
+            if last_ping + (grace + timeout) < timezone.now() and str(get_status()) != 'new':
+                print("email", name)
                 self.send_alert()
+                pause.time(self.convert_dt_seconds(nag))
         except Exception as e:
             pass
+                # print(str(e))
 
     def convert_dt_seconds(self, nag_time):
         filters = [3600, 60, 1]
         return  sum([a * b for a, b in zip(filters, map(int, str(nag_time).split(':')))])
-
-
-    def get_current_time(self):
-        t = time.time()
-        return t
 
 
     def get_nagging_status(self, now=None):
