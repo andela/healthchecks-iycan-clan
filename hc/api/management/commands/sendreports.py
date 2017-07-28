@@ -30,11 +30,11 @@ class Command(BaseCommand):
 
     def handle_one_run(self):
         now = timezone.now()
-        period_before = now - timedelta(seconds=7)
-        period_after = now + timedelta(seconds=7)
+        period_before = now - timedelta(days=1)
+        period_after = now + timedelta(days=1)
 
-        report_due = Q(next_report_date__lt=period_after)
-        report_not_scheduled = Q(next_report_date__isnull=False)
+        report_due = Q(next_report_date__lt=now)
+        report_not_scheduled = Q(next_report_date__isnull=True)
 
         q = Profile.objects.filter(report_due | report_not_scheduled)
         q = q.filter(reports_allowed=True)
