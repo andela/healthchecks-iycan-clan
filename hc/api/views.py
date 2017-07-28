@@ -165,7 +165,7 @@ def schedule_nagging():
 # start the nagging thread once the server has started
 
 
-_thread.start_new_thread(schedule_nagging, ())
+# _thread.start_new_thread(schedule_nagging, ())
 
 
 
