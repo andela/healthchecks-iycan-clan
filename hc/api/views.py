@@ -153,17 +153,17 @@ def badge(request, username, signature, tag):
     return HttpResponse(svg, content_type="image/svg+xml")
 
 
-def get_checks(t0):
+def get_checks():
     q = Check.objects.all()
     for check in q:
-        check.nag_users(check.name, check.grace, check.last_ping, check.timeout, check.status, check.nag, t0)
+        check.nag_users(check.last_ping, check.grace, check.timeout, check.get_status, check.name, check.nag)
 
 
 def schedule_nagging():
-    t0 = time.time()
-    schedule.every().seconds.do(get_checks, (t0))
+    schedule.every(1).seconds.do(get_checks)
     while True:
         schedule.run_pending()
 
 # start the nagging thread once the server has started
 thread.start_new_thread(schedule_nagging, ())
+
