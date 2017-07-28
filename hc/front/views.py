@@ -187,12 +187,14 @@ def update_timeout(request, code):
         form = CronForm(request.POST)
         if not form.is_valid():
             return HttpResponseBadRequest()
-
-        check.kind = "cron"
-        check.schedule = form.cleaned_data["schedule"]
-        check.tz = form.cleaned_data["tz"]
-        check.grace = td(minutes=form.cleaned_data["grace"])
-        check.nag = td(minutes=form.cleaned_data["nag"])
+        try:
+            check.kind = "cron"
+            check.schedule = form.cleaned_data["schedule"]
+            check.tz = form.cleaned_data["tz"]
+            check.grace = td(minutes=form.cleaned_data["grace"])
+            check.nag = td(minutes=form.cleaned_data["nag"])
+        except:
+            pass
 
     if check.last_ping:
         check.alert_after = check.get_alert_after()
