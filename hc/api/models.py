@@ -4,7 +4,7 @@ import hashlib
 import json
 import uuid
 import time
-import _thread
+import thread
 import schedule
 import threading
 import math
@@ -120,14 +120,18 @@ class Check(models.Model):
 
     def get_status(self, now=None):
         """ Return "up" if the check is up or in grace, otherwise "down". """
+        status = ""
+        try:
+            if self.status in ("new", "paused"):
+                return self.status
 
-        if self.status in ("new", "paused"):
-            return self.status
+            if now is None:
+                now = timezone.now()
 
-        if now is None:
-            now = timezone.now()
-
-        return "up" if self.get_grace_start() + self.grace > now else "down"
+            status = "up" if self.get_grace_start() + self.grace > now else "down"
+        except:
+            pass
+        return status
 
     def get_alert_after(self):
         """ Return the datetime when check potentially goes down. """
@@ -182,7 +186,6 @@ class Check(models.Model):
 
     def nag_users(self, last_ping, grace, timeout, get_status, name, nag):
         try:
-            print(self.convert_dt_seconds(nag))
             if last_ping + (grace + timeout) < timezone.now() and str(get_status()) != 'new':
                 print("email", name)
                 self.send_alert()
