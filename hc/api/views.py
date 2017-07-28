@@ -10,7 +10,7 @@ from hc.api import schemas
 from hc.api.decorators import check_api_key, uuid_or_400, validate_json
 from hc.api.models import Check, Ping
 from hc.lib.badges import check_signature, get_badge_svg
-import _thread
+import thread
 import schedule
 import time
 
@@ -155,10 +155,17 @@ def get_checks():
 
 
 def schedule_nagging():
-    schedule.every(1).seconds.do(get_checks)
-    while True:
-        schedule.run_pending()
+    try:
+        schedule.every(1).seconds.do(get_checks)
+        while True:
+            schedule.run_pending()
+    except:
+        pass
 
 # start the nagging thread once the server has started
-_thread.start_new_thread(schedule_nagging, ())
+
+
+thread.start_new_thread(schedule_nagging, ())
+
+
 
