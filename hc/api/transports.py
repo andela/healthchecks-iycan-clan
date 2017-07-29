@@ -4,6 +4,7 @@ from django.utils import timezone
 import json
 import requests
 from six.moves.urllib.parse import quote
+from twilio.rest import Client
 
 from hc.lib import emails
 
@@ -237,6 +238,21 @@ class VictorOps(HttpTransport):
         }
 
         return self.post(self.channel.value, payload)
+
+class Sms(Transport):
+    def notify(self,check):
+        print("were here sms-ing")
+        body = 'Hello, This is a notification sent by healthchecks.io : \
+                   \n\nThe check "{}" has gone {}.'.format(
+                   check.name_then_code(),
+                   check.status.upper()
+                   )
+        print(body)
+        from_ = settings.TWILIO_FROM
+        to = settings.TWILIO_TO
+        client = Client(settings.TWILIO_ACCOUNT_SID,
+        settings.TWILIO_AUTH_TOKEN)
+        response = client.messages.create(body=body, to=to, from_=from_)
 
 
 class Discord(HttpTransport):
