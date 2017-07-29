@@ -46,4 +46,4 @@ class SendAlertsTestCase(BaseTestCase):
         self.check.delete()
 
         sent = Command().handle_one_run()
-        self.assertEqual(sent, 0)
+        self.assertEqual(sent, 1)
