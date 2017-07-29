@@ -21,3 +21,4 @@ rjsmin==1.0.12
 sendgrid==3.6.5
 sendgrid-django==4.0.4
 six==1.10.0
+twilio==6.4.3
