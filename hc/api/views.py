@@ -11,7 +11,7 @@ from hc.api import schemas
 from hc.api.decorators import check_api_key, uuid_or_400, validate_json
 from hc.api.models import Check, Ping
 from hc.lib.badges import check_signature, get_badge_svg
-import _thread
+import thread
 import schedule
 import time
 
@@ -147,28 +147,6 @@ def badge(request, username, signature, tag):
 
     svg = get_badge_svg(tag, status)
     return HttpResponse(svg, content_type="image/svg+xml")
-
-
-def get_checks():
-    q = Check.objects.all()
-    for check in q:
-        check.nag_users(check.last_ping, check.grace, check.timeout, check.get_status, check.name, check.nag)
-
-
-def schedule_nagging():
-    try:
-        print("running thread")
-        schedule.every(1).seconds.do(get_checks)
-        while True:
-            schedule.run_pending()
-    except Exception as e:
-        # print(str(e))
-        pass
-# start the nagging thread once the server has started
-
-TESTING = sys.argv[1:2] == ['test']
-if not TESTING:
-    _thread.start_new_thread(schedule_nagging, ())
 
 
 
