@@ -92,7 +92,6 @@ class Check(models.Model):
         return "%s@%s" % (self.code, settings.PING_EMAIL_DOMAIN)
 
     def send_alert(self):
-        print("sending alerts")
         if self.status not in ("up", "down"):
             raise NotImplementedError("Unexpected status: %s" % self.status)
 
@@ -191,7 +190,7 @@ class Check(models.Model):
             if check.get_status() != 'new' and check.get_nagging_status() == 'nag':
                 # send email instead
                 print("Sending email to {} ".format(check.name))
-                self.send_alert()
+                check.send_alert()
 
         return ""
 
