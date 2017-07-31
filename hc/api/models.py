@@ -92,10 +92,12 @@ class Check(models.Model):
         return "%s@%s" % (self.code, settings.PING_EMAIL_DOMAIN)
 
     def send_alert(self):
+        print("sending alerts")
         if self.status not in ("up", "down"):
             raise NotImplementedError("Unexpected status: %s" % self.status)
 
         errors = []
+
         for channel in self.channel_set.all():
             error = channel.notify(self)
             if error not in ("", "no-op"):
@@ -183,15 +185,16 @@ class Check(models.Model):
 
         return result
 
-    def nag_users(self, last_ping, grace, timeout, get_status, name, nag):
-        try:
-            if last_ping + (grace + timeout) < timezone.now() and str(get_status()) != 'new':
-                print("email", name)
+    def nag_users(self, code):
+        q = Check.objects.filter(code = code).all()
+        for check in q:
+            if check.get_status() != 'new' and check.get_nagging_status() == 'nag':
+                # send email instead
+                print("Sending email to {} ".format(check.name))
                 self.send_alert()
-                pause.time(self.convert_dt_seconds(nag))
-        except Exception as e:
-            pass
-                # print(str(e))
+
+        return ""
+
 
     def convert_dt_seconds(self, nag_time):
         filters = [3600, 60, 1]
@@ -209,6 +212,16 @@ class Check(models.Model):
 
         return "up" if self.get_grace_start() + self.grace + self.nag > now else "nag"
 
+    def schedule_nagging(self):
+        try:
+            q = Check.objects.all()
+            for check in q:
+                if len(check.name) > 1:
+                    schedule.every(check.convert_dt_seconds(check.nag)).seconds.do(self.nag_users, (check.code))
+            while True:
+                schedule.run_pending()
+        except Exception as e:
+            print(str(e), "error")
 
     @classmethod
     def check(cls, **kwargs):
