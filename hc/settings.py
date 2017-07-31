@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 import os
 import warnings
+import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -111,6 +112,9 @@ if os.environ.get("DB") == "mysql":
         }
     }
 
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -121,13 +125,14 @@ USE_L10N = True
 
 USE_TZ = True
 
-SITE_ROOT = "http://localhost:8000"
+SITE_ROOT = "https://health-checks-clinic.herokuapp.com/"
 SITE_NAME = "healthchecks.io"
 PING_ENDPOINT = SITE_ROOT + "/ping/"
 PING_EMAIL_DOMAIN = HOST
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static-collected')
+# STATIC_ROOT = 'staticfiles'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -135,7 +140,11 @@ STATICFILES_FINDERS = (
 )
 COMPRESS_OFFLINE = True
 
+# Email Config
 EMAIL_BACKEND = "djmail.backends.default.EmailBackend"
+DEFAULT_FROM_EMAIL = 'noreply@my-monitoring-project.com'
+DJMAIL_REAL_BACKEND = 'sgbackend.SendGridBackend'
+SENDGRID_API_KEY = "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"
 
 # Discord integration -- override these in local_settings
 DISCORD_CLIENT_ID = None
