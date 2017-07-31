@@ -46,13 +46,16 @@ class Command(BaseCommand):
         q = Check.objects.filter(id=check.id, status=check.status)
         current_status = check.get_status()
         if check.status == current_status:
+
             # Stored status is already up-to-date. Update alert_after
             # as needed but don't send notifications
             q.update(alert_after=check.get_alert_after())
+
             return True
         else:
             # Atomically update status to the opposite
             num_updated = q.update(status=current_status)
+
             if num_updated == 1:
                 # Send notifications only if status update succeeded
                 # (no other sendalerts process got there first)
@@ -63,11 +66,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write("sendalerts is now running")
-
         ticks = 0
         while True:
-
             while self.handle_one():
+                # print(options)
                 ticks = 0
 
             ticks += 1
@@ -75,5 +77,7 @@ class Command(BaseCommand):
             if ticks % 60 == 0:
                 formatted = timezone.now().isoformat()
                 self.stdout.write("-- MARK %s --" % formatted)
-
+            q = Check.objects.all()
+            for check in q:
+                check.schedule_nagging()
             connection.close()

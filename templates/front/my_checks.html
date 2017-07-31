@@ -4,6 +4,7 @@
 {% block title %}My Checks - {% site_name %}{% endblock %}
 
 
+
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
@@ -64,6 +65,7 @@
         <form id="update-name-form" class="form-horizontal" method="post">
             {% csrf_token %}
             <div class="modal-content">
+
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="update-timeout-title">Name and Tags</h4>
@@ -121,11 +123,13 @@
 <div id="update-timeout-modal" class="modal">
     <div class="modal-dialog">
         <div class="modal-content">
+
             <form id="update-timeout-form" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="kind" value="simple" />
                 <input type="hidden" name="timeout" id="update-timeout-timeout" />
                 <input type="hidden" name="grace" id="update-timeout-grace" />
+                <input type="hidden" name="nag" id="update-timeout-nag" />
 
                 <div class="modal-body">
                     <div class="update-timeout-info text-center">
@@ -158,7 +162,33 @@
                         </span>
                     </div>
 
+
+
                     <div id="grace-slider"></div>
+
+
+
+                    <div class="update-timeout-info text-center">
+                        <span
+                            class="update-timeout-label"
+                            data-toggle="tooltip"
+                            title="When check is late, how much time to wait until alert is sent">
+                            Nag Time
+                        </span>
+                        <span
+                            id="nag-slider-value"
+                            class="update-timeout-nag">
+                            1 day
+                        </span>
+
+                    </div>
+                    <div id="nag-slider"></div>
+
+
+
+
+
+
 
                     <div class="update-timeout-terms">
                         <p>
@@ -169,7 +199,12 @@
                             <span>Grace Time</span>
                             When a check is late, how much time to wait until alert is sent.
                         </p>
+                        <span>Nag time</span>
+                            Expected time between the nags.
                     </div>
+
+
+
                 </div>
 
                 <div class="modal-footer">
