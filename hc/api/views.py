@@ -1,4 +1,3 @@
-import sys
 from datetime import timedelta as td
 
 from django.db.models import F
@@ -11,9 +10,7 @@ from hc.api import schemas
 from hc.api.decorators import check_api_key, uuid_or_400, validate_json
 from hc.api.models import Check, Ping
 from hc.lib.badges import check_signature, get_badge_svg
-import thread
-import schedule
-import time
+
 
 # from django.contrib.auth.
 @csrf_exempt
