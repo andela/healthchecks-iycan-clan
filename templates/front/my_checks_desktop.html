@@ -14,7 +14,7 @@
         <th></th>
     </tr>
     {% for check in checks %}
-    <tr class="checks-row">
+    <tr class="checks-row" data-status="{{ check.get_status }}">
         <td class="indicator-cell">
             {% if check.get_status == "new" %}
                 <span class="status icon-up new"
