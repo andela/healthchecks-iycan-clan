@@ -77,6 +77,8 @@ class Command(BaseCommand):
             if ticks % 60 == 0:
                 formatted = timezone.now().isoformat()
                 self.stdout.write("-- MARK %s --" % formatted)
+
+            """ Starts sending alerts once sendalerts commands is run """
             q = Check.objects.all()
             for check in q:
                 check.schedule_nagging()
