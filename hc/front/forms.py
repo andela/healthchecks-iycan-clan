@@ -29,6 +29,7 @@ class CronForm(forms.Form):
     tz = forms.CharField(required=False, max_length=36,
                          validators=[TimezoneValidator()])
     grace = forms.IntegerField(min_value=1, max_value=43200)
+    nag = forms.IntegerField(min_value=1, max_value=43200)
 
 
 class AddPdForm(forms.Form):
