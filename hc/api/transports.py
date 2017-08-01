@@ -241,13 +241,11 @@ class VictorOps(HttpTransport):
 
 class Sms(Transport):
     def notify(self,check):
-        print("were here sms-ing")
         body = 'Hello, This is a notification sent by healthchecks.io : \
                    \n\nThe check "{}" has gone {}.'.format(
                    check.name_then_code(),
                    check.status.upper()
                    )
-        print(body)
         from_ = settings.TWILIO_FROM
         to = self.channel.value
         client = Client(settings.TWILIO_ACCOUNT_SID,
