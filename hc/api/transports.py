@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -246,10 +248,13 @@ class Sms(Transport):
                    check.name_then_code(),
                    check.status.upper()
                    )
-        from_ = settings.TWILIO_FROM
+        from_ = os.getenv("TWILIO_FROM") or settings.TWILIO_FROM
+        account_sid = os.getenv("TWILIO_ACCOUNT_SID") or settings.TWILIO_ACCOUNT_SID
+        auth_token =  os.getenv("TWILIO_AUTH_TOKEN") or settings.TWILIO_AUTH_TOKEN
+
+        print("this is the source of the variable", os.getenv("TWILIO_ACCOUNT_SID"), settings.TWILIO_ACCOUNT_SID)
         to = self.channel.value
-        client = Client(settings.TWILIO_ACCOUNT_SID,
-        settings.TWILIO_AUTH_TOKEN)
+        client = Client(account_sid, auth_token)
         response = client.messages.create(body=body, to=to, from_=from_)
 
 
