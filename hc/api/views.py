@@ -12,6 +12,8 @@ from hc.api.models import Check, Ping
 from hc.lib.badges import check_signature, get_badge_svg
 
 
+
+
 # from django.contrib.auth.
 @csrf_exempt
 @uuid_or_400
