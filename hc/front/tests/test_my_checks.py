@@ -33,7 +33,7 @@ class MyChecksTestCase(BaseTestCase):
 
     def test_it_shows_red_check(self):
         self.check.last_ping = timezone.now() - td(days=2)
-        self.check.status = "up"
+        self.check.status = "down"
         self.check.save()
 
         self.client.login(username="alice@example.org", password="password")
