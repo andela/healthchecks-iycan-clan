@@ -249,7 +249,7 @@ class Sms(Transport):
                    )
         print(body)
         from_ = settings.TWILIO_FROM
-        to = settings.TWILIO_TO
+        to = self.channel.value
         client = Client(settings.TWILIO_ACCOUNT_SID,
         settings.TWILIO_AUTH_TOKEN)
         response = client.messages.create(body=body, to=to, from_=from_)
