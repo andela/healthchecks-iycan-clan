@@ -123,8 +123,7 @@ class Check(models.Model):
             if now is None:
                 now = timezone.now()
 
-            status = "up" if self.get_grace_start() + self.grace > now else "nag" if  \
-                self.get_grace_start() + self.grace + self.nag > now else "down"
+            status = "up" if self.get_grace_start() + self.grace > now else "down"
         except:
             pass
         return status
