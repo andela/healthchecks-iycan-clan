@@ -1,15 +1,10 @@
 # coding: utf-8
-
 import hashlib
 import json
 import uuid
-import time
 import schedule
-import threading
-import math
 from datetime import datetime, timedelta as td
 
-import pause as pause
 from croniter import croniter
 from django.conf import settings
 from django.core.checks import Warning
@@ -128,7 +123,8 @@ class Check(models.Model):
             if now is None:
                 now = timezone.now()
 
-            status = "up" if self.get_grace_start() + self.grace > now else "down"
+            status = "up" if self.get_grace_start() + self.grace > now else "nag" if  \
+                self.get_grace_start() + self.grace + self.nag > now else "down"
         except:
             pass
         return status
@@ -185,23 +181,17 @@ class Check(models.Model):
         return result
 
     def nag_users(self, code):
+        """ Send nagging email  """
         q = Check.objects.filter(code = code).all()
         for check in q:
             if check.get_status() != 'new' and check.get_nagging_status() == 'nag':
-                # send email instead
-                print("Sending email to {} ".format(check.name))
+                # send email
                 check.send_alert()
-
-        return ""
-
-
-    def convert_dt_seconds(self, nag_time):
-        filters = [3600, 60, 1]
-        return  sum([a * b for a, b in zip(filters, map(int, str(nag_time).split(':')))])
-
+            else:
+                pass
 
     def get_nagging_status(self, now=None):
-        """ Return "up" if the check is up or in grace, otherwise "down". """
+        """ Return "up" if the check is up or in grace, otherwise "nag". """
 
         if self.status in ("new", "paused"):
             return self.status
@@ -212,15 +202,16 @@ class Check(models.Model):
         return "up" if self.get_grace_start() + self.grace + self.nag > now else "nag"
 
     def schedule_nagging(self):
+        """ start scheduling checks once 'python manage.py sendalerts' command is run """
         try:
             q = Check.objects.all()
             for check in q:
                 if len(check.name) > 1:
-                    schedule.every(check.convert_dt_seconds(check.nag)).seconds.do(self.nag_users, (check.code))
+                    schedule.every(check.nag.total_seconds()).seconds.do(self.nag_users, (check.code))
             while True:
                 schedule.run_pending()
         except Exception as e:
-            print(str(e), "error")
+            print(e)
 
     @classmethod
     def check(cls, **kwargs):
