@@ -32,6 +32,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'compressor',
     'djmail',
+    'kronos',
     'hc.accounts',
     'hc.api',
     'hc.front',
