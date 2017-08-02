@@ -62,6 +62,39 @@ $(function () {
         }
     });
 
+
+    var nagSlider = document.getElementById("nag-slider");
+    noUiSlider.create(nagSlider, {
+        start: [20],
+        connect: "lower",
+        range: {
+            'min': [60, 60],
+            '33%': [3600, 3600],
+            '66%': [86400, 86400],
+            '83%': [604800, 604800],
+            'max': 2592000,
+        },
+        pips: {
+            mode: 'values',
+            values: [60, 1800, 3600, 43200, 86400, 604800, 2592000],
+            density: 4,
+            format: {
+                to: secsToText,
+                from: function() {}
+            }
+        }
+    });
+
+    nagSlider.noUiSlider.on("update", function(a, b, value) {
+        var rounded = Math.round(value);
+        $("#nag-slider-value").text(secsToText(rounded));
+        $("#update-timeout-nag").val(rounded);
+    });
+
+
+
+
+
     periodSlider.noUiSlider.on("update", function(a, b, value) {
         var rounded = Math.round(value);
         $("#period-slider-value").text(secsToText(rounded));
@@ -139,6 +172,7 @@ $(function () {
         // Simple
         periodSlider.noUiSlider.set(this.dataset.timeout);
         graceSlider.noUiSlider.set(this.dataset.grace);
+        nagSlider.noUiSlider.set(this.dataset.nag);
 
         // Cron
         currentPreviewHash = "";
@@ -244,5 +278,36 @@ $(function () {
         prompt("Press Ctrl+C to select:", text)
     });
 
+    /*  Jobs table filter functionality */
 
+    var select_filter = document.querySelector("#checks-filter");
+    /* Listen for the change event on the select box. */
+    select_filter.addEventListener("change", function(event){
+        filterJobs(event.target.value);
+    });
+
+    function filterJobs(job_type){
+        /* Store the checks-table element in the table variable. */
+        var table = document.getElementById('checks-table');
+        /* Set up standardized looping of rows in older versions of mozilla. */
+        var rows = [].slice.call(table.querySelectorAll("tr.checks-row"));
+
+        for (var i = 0; i < rows.length; i++) {
+            var status = rows[i].dataset.status;
+            /* Display all the jobs. */
+            if(job_type === "all"){
+                rows[i].style.display = "";
+            }
+            else{
+                /* A match for the selection was found. Display the row. */
+                if(job_type.indexOf(status) == 0){
+                    rows[i].style.display = "";
+                }
+                else{
+                    /* No match for the selection was found. Hide the row. */
+                    rows[i].style.display = "none";
+                }
+          }
+        }
+    }
 });
