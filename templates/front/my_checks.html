@@ -8,11 +8,11 @@
 <div class="row">
     <div class="col-sm-12">
         <h1>
-        {% if request.team == request.user.profile %}
-            My Checks
-        {% else %}
-            {{ request.team.team_name }}
-        {% endif %}
+          {% if request.team == request.user.profile %}
+              My Checks
+          {% else %}
+              {{ request.team.team_name }}
+          {% endif %}
         </h1>
     </div>
     {% if tags %}
@@ -26,6 +26,16 @@
                 <button class="btn btn-default btn-xs" data-toggle="button">{{ tag }}</button>
             {% endif %}
         {% endfor %}
+        <div class="col-sm-3" style="float:right">
+            <select class="form-control" id="checks-filter" name="checks-filter">
+                <option selected disabled>Filter Jobs</option>
+                <option value="down">Failed</option>
+                <option value="up">Successful</option>
+                <option value="new">New</option>
+                <option value="paused">Paused</option>
+                <option value="all">All</option>
+            </select>
+        </div>
     </div>
     {% endif %}
 </div>
@@ -36,7 +46,7 @@
         {% include "front/my_checks_mobile.html" %}
         {% include "front/my_checks_desktop.html" %}
     {% else %}
-    <div class="alert alert-info">You don't have any checks yet.</div>
+        <div class="alert alert-info">You don't have any checks yet.</div>
     {% endif %}
     </div>
 </div>

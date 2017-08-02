@@ -1,6 +1,6 @@
 from datetime import timedelta
 import time
-
+import kronos
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.utils import timezone
@@ -13,6 +13,7 @@ def num_pinged_checks(profile):
     q = q.filter(last_ping__isnull=False)
     return q.count()
 
+@kronos.register('0 0 * * *')
 
 class Command(BaseCommand):
     help = 'Send due monthly reports'
@@ -51,6 +52,7 @@ class Command(BaseCommand):
 
             self.stdout.write(self.tmpl % profile.user.email)
             profile.send_report()
+
             sent += 1
 
         return sent
@@ -66,4 +68,4 @@ class Command(BaseCommand):
             formatted = timezone.now().isoformat()
             self.stdout.write("-- MARK %s --" % formatted)
 
-            time.sleep(86400)
+            time.sleep(7)
