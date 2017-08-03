@@ -46,6 +46,7 @@ $(function () {
         start: [20],
         connect: "lower",
         range: {
+            // the range distance is 11.11%
             'min': [60, 60],
             '11.11%': [1800, 1800],
             '22.22%': [3600, 3600],
@@ -79,6 +80,7 @@ $(function () {
         start: [20],
         connect: "lower",
         range: {
+            // the range distance is 11.11%
             'min': [60, 60],
             '11.11%': [1800, 1800],
             '22.22%': [3600, 3600],
