@@ -20,9 +20,11 @@ from hc.api.models import (DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check,
                            Ping, Notification)
 from hc.front.forms import (AddWebhookForm, NameTagsForm,
                             TimeoutForm, AddUrlForm, AddPdForm, AddEmailForm,
-                            AddOpsGenieForm, CronForm)
+                            AddOpsGenieForm, CronForm, AddSmsForm)
 from pytz import all_timezones
 from pytz.exceptions import UnknownTimeZoneError
+
+
 
 
 # from itertools recipes:
@@ -173,6 +175,7 @@ def update_timeout(request, code):
         return HttpResponseForbidden()
 
     kind = request.POST.get("kind")
+    print(request.POST)
     if kind == "simple":
         form = TimeoutForm(request.POST)
         if not form.is_valid():
@@ -181,6 +184,7 @@ def update_timeout(request, code):
         check.kind = "simple"
         check.timeout = td(seconds=form.cleaned_data["timeout"])
         check.grace = td(seconds=form.cleaned_data["grace"])
+        check.nag = td(seconds=form.cleaned_data["nag"])
     elif kind == "cron":
         form = CronForm(request.POST)
         if not form.is_valid():
@@ -190,6 +194,7 @@ def update_timeout(request, code):
         check.schedule = form.cleaned_data["schedule"]
         check.tz = form.cleaned_data["tz"]
         check.grace = td(minutes=form.cleaned_data["grace"])
+        check.nag = td(minutes=form.cleaned_data["nag"])
 
     if check.last_ping:
         check.alert_after = check.get_alert_after()
@@ -394,6 +399,24 @@ def add_email(request):
 
     ctx = {"page": "channels", "form": form}
     return render(request, "integrations/add_email.html", ctx)
+
+@login_required
+def add_sms(request):
+    if request.method == "POST":
+        form = AddSmsForm(request.POST)
+        if form.is_valid():
+            channel = Channel(user=request.team.user, kind="sms")
+            channel.value = form.cleaned_data["value"]
+            channel.save()
+
+            channel.assign_all_checks()
+            return redirect("hc-channels")
+    else:
+        form = AddSmsForm()
+
+    ctx = {"page": "channels"}
+    return render(request, "integrations/sms_message.html", ctx)
+
 
 
 @login_required

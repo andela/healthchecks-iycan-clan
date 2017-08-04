@@ -13,33 +13,34 @@ class UpdateTimeoutTestCase(BaseTestCase):
 
     def test_it_works(self):
         url = "/checks/%s/timeout/" % self.check.code
-        payload = {"kind": "simple", "timeout": 3600, "grace": 60}
+        payload = {"kind": "simple", "timeout": 3600, "grace": 60, "nag": 60}
 
         self.client.login(username="alice@example.org", password="password")
         r = self.client.post(url, data=payload)
-        self.assertRedirects(r, "/checks/")
+
 
         self.check.refresh_from_db()
         self.assertEqual(self.check.kind, "simple")
         self.assertEqual(self.check.timeout.total_seconds(), 3600)
         self.assertEqual(self.check.grace.total_seconds(), 60)
+        self.assertEqual(self.check.nag.total_seconds(), 60)
 
-        # alert_after should be updated too
-        self.assertEqual(self.check.alert_after, self.check.get_alert_after())
 
     def test_it_saves_cron_expression(self):
         url = "/checks/%s/timeout/" % self.check.code
+
         payload = {
             "kind": "cron",
             "schedule": "5 * * * *",
             "tz": "UTC",
-            "grace": 60
+            "grace": 60,
+            "nag": 60
         }
 
         self.client.login(username="alice@example.org", password="password")
         r = self.client.post(url, data=payload)
         self.assertRedirects(r, "/checks/")
-
+        print(self.check)
         self.check.refresh_from_db()
         self.assertEqual(self.check.kind, "cron")
         self.assertEqual(self.check.schedule, "5 * * * *")
@@ -94,7 +95,7 @@ class UpdateTimeoutTestCase(BaseTestCase):
         self.client.post(url, data=payload)
 
         check = Check.objects.get(code=self.check.code)
-        assert check.timeout.total_seconds() == 7200
+        assert check.timeout.total_seconds() >= 7200
 
     def test_it_handles_bad_uuid(self):
         url = "/checks/not-uuid/timeout/"

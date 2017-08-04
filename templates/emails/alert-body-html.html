@@ -7,7 +7,7 @@ Hello,<br />
 This is a notification sent by <a href="{% site_root %}">{% site_name %}</a>.
 <br />
 The check <strong>{{ check.name_then_code }}</strong>
-has gone <strong>{{ check.status|upper }}</strong>.
+has gone <strong>{{ check.get_status | upper }}</strong>.
 <br /><br />
 
 Here is a summary of all your checks:

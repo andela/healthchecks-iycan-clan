@@ -30,6 +30,7 @@
             {% if ch.kind == "email" %} Email
             {% elif ch.kind == "webhook" %} Webhook
             {% elif ch.kind == "slack" %} Slack
+            {% elif ch.kind == "sms" %} Sms
             {% elif ch.kind == "hipchat" %} HipChat
             {% elif ch.kind == "pd" %} PagerDuty
             {% elif ch.kind == "po" %} Pushover
@@ -47,6 +48,9 @@
                     {% endif %}
                 {% elif ch.kind == "pd" %}
                     <span class="preposition">API key</span>
+                    {{ ch.value }}
+                {% elif ch.kind == "sms" %}
+                    <span class="preposition">to</span>
                     {{ ch.value }}
                 {% elif ch.kind == "opsgenie" %}
                     <span class="preposition">API key</span>
@@ -149,6 +153,15 @@
             <p>Get an email message when check goes up or down.</p>
 
             <a href="{% url 'hc-add-email' %}" class="btn btn-primary">Add Integration</a>
+        </li>
+        <li>
+            <img src="{% static 'img/integrations/sms.png' %}"
+                class="icon" alt="SMS icon" />
+
+            <h2>SMS</h2>
+            <p>Get an SMS message when check goes up or down.</p>
+
+            <a href="{% url 'hc-add-sms' %}" class="btn btn-primary">Add Integration</a>
         </li>
         <li>
             <img src="{% static 'img/integrations/webhook.png' %}"

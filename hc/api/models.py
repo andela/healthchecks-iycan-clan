@@ -1,8 +1,8 @@
 # coding: utf-8
-
 import hashlib
 import json
 import uuid
+import schedule
 from datetime import datetime, timedelta as td
 
 from croniter import croniter
@@ -22,6 +22,7 @@ STATUSES = (
     ("paused", "Paused")
 )
 DEFAULT_TIMEOUT = td(days=1)
+DEFAULT_NAGTIME = td(days=1)
 DEFAULT_GRACE = td(hours=1)
 CHECK_KINDS = (("simple", "Simple"),
                ("cron", "Cron"))
@@ -35,6 +36,7 @@ CHANNEL_KINDS = (("email", "Email"),
                  ("pushbullet", "Pushbullet"),
                  ("opsgenie", "OpsGenie"),
                  ("victorops", "VictorOps"),
+                 ("sms", "Sms"),
                  ("discord", "Discord"))
 
 PO_PRIORITIES = {
@@ -67,6 +69,8 @@ class Check(models.Model):
     last_ping = models.DateTimeField(null=True, blank=True)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
+    nag = models.DurationField(default=DEFAULT_NAGTIME)
+
 
     def name_then_code(self):
         if self.name:
@@ -88,6 +92,7 @@ class Check(models.Model):
             raise NotImplementedError("Unexpected status: %s" % self.status)
 
         errors = []
+
         for channel in self.channel_set.all():
             error = channel.notify(self)
             if error not in ("", "no-op"):
@@ -111,14 +116,18 @@ class Check(models.Model):
 
     def get_status(self, now=None):
         """ Return "up" if the check is up or in grace, otherwise "down". """
+        status = ""
+        try:
+            if self.status in ("new", "paused"):
+                return self.status
 
-        if self.status in ("new", "paused"):
-            return self.status
+            if now is None:
+                now = timezone.now()
 
-        if now is None:
-            now = timezone.now()
-
-        return "up" if self.get_grace_start() + self.grace > now else "down"
+            status = "up" if self.get_grace_start() + self.grace > now else "down"
+        except:
+            pass
+        return status
 
     def get_alert_after(self):
         """ Return the datetime when check potentially goes down. """
@@ -170,6 +179,39 @@ class Check(models.Model):
             result["next_ping"] = None
 
         return result
+
+    def nag_users(self, code):
+        """ Send nagging email  """
+        q = Check.objects.filter(code = code).all()
+        for check in q:
+            if check.get_status() != 'new' and check.get_nagging_status() == 'nag':
+                # send email
+                check.send_alert()
+            else:
+                pass
+
+    def get_nagging_status(self, now=None):
+        """ Return "up" if the check is up or in grace, otherwise "nag". """
+
+        if self.status in ("new", "paused"):
+            return self.status
+
+        if now is None:
+            now = timezone.now()
+
+        return "up" if self.get_grace_start() + self.grace + self.nag > now else "nag"
+
+    def schedule_nagging(self):
+        """ start scheduling checks once 'python manage.py sendalerts' command is run """
+        try:
+            q = Check.objects.all()
+            for check in q:
+                if len(check.name) > 1:
+                    schedule.every(check.nag.total_seconds()).seconds.do(self.nag_users, (check.code))
+            while True:
+                schedule.run_pending()
+        except Exception as e:
+            print(e)
 
     @classmethod
     def check(cls, **kwargs):
@@ -341,6 +383,7 @@ class Channel(models.Model):
 
 
 class Notification(models.Model):
+
     class Meta:
         get_latest_by = "created"
 
