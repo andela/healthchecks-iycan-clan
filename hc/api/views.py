@@ -12,6 +12,9 @@ from hc.api.models import Check, Ping
 from hc.lib.badges import check_signature, get_badge_svg
 
 
+
+
+# from django.contrib.auth.
 @csrf_exempt
 @uuid_or_400
 @never_cache
@@ -40,9 +43,9 @@ def ping(request, code):
     # If User-Agent is longer than 200 characters, truncate it:
     ping.ua = headers.get("HTTP_USER_AGENT", "")[:200]
     ping.save()
-
     response = HttpResponse("OK")
     response["Access-Control-Allow-Origin"] = "*"
+
     return response
 
 
@@ -143,3 +146,6 @@ def badge(request, username, signature, tag):
 
     svg = get_badge_svg(tag, status)
     return HttpResponse(svg, content_type="image/svg+xml")
+
+
+

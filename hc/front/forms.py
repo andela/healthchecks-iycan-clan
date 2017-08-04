@@ -21,7 +21,7 @@ class NameTagsForm(forms.Form):
 class TimeoutForm(forms.Form):
     timeout = forms.IntegerField(min_value=60, max_value=2592000)
     grace = forms.IntegerField(min_value=60, max_value=2592000)
-
+    nag = forms.IntegerField(min_value=60, max_value=2592000)
 
 class CronForm(forms.Form):
     schedule = forms.CharField(required=False, max_length=100,
@@ -29,6 +29,7 @@ class CronForm(forms.Form):
     tz = forms.CharField(required=False, max_length=36,
                          validators=[TimezoneValidator()])
     grace = forms.IntegerField(min_value=1, max_value=43200)
+    nag = forms.IntegerField(min_value=1, max_value=43200)
 
 
 class AddPdForm(forms.Form):
