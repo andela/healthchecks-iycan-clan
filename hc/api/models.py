@@ -35,6 +35,7 @@ CHANNEL_KINDS = (("email", "Email"),
                  ("pushbullet", "Pushbullet"),
                  ("opsgenie", "OpsGenie"),
                  ("victorops", "VictorOps"),
+                 ("sms", "Sms"),
                  ("discord", "Discord"))
 
 PO_PRIORITIES = {

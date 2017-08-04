@@ -1,6 +1,5 @@
 boto==2.48.0
 croniter==0.3.17
-dj-database-url==0.4.1
 Django==1.10.1
 django-appconf==1.0.1
 django-compressor==2.1
@@ -8,10 +7,11 @@ django-kronos==1.0
 django-ses-backend==0.1.1
 djmail==0.11.0
 funcsigs==1.0.2
-gunicorn==19.6.0
 mock==2.0.0
 pbr==3.1.1
 psycopg2==2.6.1
+dj-database-url==0.4.1
+gunicorn==19.6.0
 python-crontab==2.2.3
 python-dateutil==2.6.0
 python-http-client==2.4.0
@@ -23,3 +23,5 @@ rjsmin==1.0.12
 sendgrid==3.6.5
 sendgrid-django==4.0.4
 six==1.10.0
+twilio==6.4.3
+
