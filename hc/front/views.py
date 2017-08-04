@@ -20,7 +20,7 @@ from hc.api.models import (DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check,
                            Ping, Notification)
 from hc.front.forms import (AddWebhookForm, NameTagsForm,
                             TimeoutForm, AddUrlForm, AddPdForm, AddEmailForm,
-                            AddOpsGenieForm, CronForm)
+                            AddOpsGenieForm, CronForm, AddSmsForm)
 from pytz import all_timezones
 from pytz.exceptions import UnknownTimeZoneError
 
@@ -399,6 +399,24 @@ def add_email(request):
 
     ctx = {"page": "channels", "form": form}
     return render(request, "integrations/add_email.html", ctx)
+
+@login_required
+def add_sms(request):
+    if request.method == "POST":
+        form = AddSmsForm(request.POST)
+        if form.is_valid():
+            channel = Channel(user=request.team.user, kind="sms")
+            channel.value = form.cleaned_data["value"]
+            channel.save()
+
+            channel.assign_all_checks()
+            return redirect("hc-channels")
+    else:
+        form = AddSmsForm()
+
+    ctx = {"page": "channels"}
+    return render(request, "integrations/sms_message.html", ctx)
+
 
 
 @login_required

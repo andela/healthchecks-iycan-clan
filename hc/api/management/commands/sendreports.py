@@ -1,6 +1,6 @@
 from datetime import timedelta
 import time
-
+import kronos
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.utils import timezone
@@ -13,6 +13,7 @@ def num_pinged_checks(profile):
     q = q.filter(last_ping__isnull=False)
     return q.count()
 
+@kronos.register('0 0 * * *')
 
 class Command(BaseCommand):
     help = 'Send due monthly reports'
@@ -23,21 +24,21 @@ class Command(BaseCommand):
             '--loop',
             action='store_true',
             dest='loop',
-            default=False,
+            default=True,
             help='Keep running indefinitely in a 300 second wait loop',
         )
 
     def handle_one_run(self):
         now = timezone.now()
-        month_before = now - timedelta(days=30)
-        month_after = now + timedelta(days=30)
+        period_before = now - timedelta(days=1)
+        period_after = now + timedelta(days=1)
 
         report_due = Q(next_report_date__lt=now)
         report_not_scheduled = Q(next_report_date__isnull=True)
 
         q = Profile.objects.filter(report_due | report_not_scheduled)
         q = q.filter(reports_allowed=True)
-        q = q.filter(user__date_joined__lt=month_before)
+        q = q.filter(user__date_joined__lt=period_before)
         profiles = list(q)
 
         sent = 0
@@ -46,16 +47,12 @@ class Command(BaseCommand):
             qq = qq.filter(id=profile.id,
                            next_report_date=profile.next_report_date)
 
-            num_updated = qq.update(next_report_date=month_after)
-            if num_updated != 1:
-                # Was updated elsewhere, skipping
-                continue
+            num_updated = qq.update(next_report_date=period_after)
 
-            if num_pinged_checks(profile) == 0:
-                continue
 
             self.stdout.write(self.tmpl % profile.user.email)
             profile.send_report()
+
             sent += 1
 
         return sent
@@ -71,4 +68,4 @@ class Command(BaseCommand):
             formatted = timezone.now().isoformat()
             self.stdout.write("-- MARK %s --" % formatted)
 
-            time.sleep(300)
+            time.sleep(7)

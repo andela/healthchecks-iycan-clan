@@ -46,6 +46,10 @@ class AddEmailForm(forms.Form):
     error_css_class = "has-error"
     value = forms.EmailField(max_length=100)
 
+class AddSmsForm(forms.Form):
+    error_css_class = "has-error"
+    value = forms.CharField(max_length=100)
+
 
 class AddUrlForm(forms.Form):
     error_css_class = "has-error"
