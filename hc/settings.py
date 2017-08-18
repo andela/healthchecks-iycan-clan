@@ -34,10 +34,27 @@ INSTALLED_APPS = (
     'djmail',
     'kronos',
 
+    # wagtail
+    'wagtail.wagtailforms',
+    'wagtail.wagtailredirects',
+    'wagtail.wagtailembeds',
+    'wagtail.wagtailsites',
+    'wagtail.wagtailusers',
+    'wagtail.wagtailsnippets',
+    'wagtail.wagtaildocs',
+    'wagtail.wagtailimages',
+    'wagtail.wagtailsearch',
+    'wagtail.wagtailadmin',
+    'wagtail.wagtailcore',
+
+    'modelcluster',
+    'taggit',
+
     'hc.accounts',
     'hc.api',
     'hc.front',
-    'hc.payments'
+    'hc.payments',
+    'hc.blog'
 )
 
 MIDDLEWARE = (
@@ -49,6 +66,8 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'hc.accounts.middleware.TeamAccessMiddleware',
+    'wagtail.wagtailcore.middleware.SiteMiddleware',
+    'wagtail.wagtailredirects.middleware.RedirectMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -125,6 +144,7 @@ USE_TZ = True
 
 SITE_ROOT = "https://health-checks-clinic.herokuapp.com/"
 SITE_NAME = "healthchecks.io"
+WAGTAIL_SITE_NAME = "Healthchecks Blog"
 PING_ENDPOINT = SITE_ROOT + "/ping/"
 PING_EMAIL_DOMAIN = HOST
 STATIC_URL = '/static/'
@@ -143,6 +163,16 @@ EMAIL_BACKEND = "djmail.backends.default.EmailBackend"
 DEFAULT_FROM_EMAIL = 'noreply@my-monitoring-project.com'
 DJMAIL_REAL_BACKEND = 'sgbackend.SendGridBackend'
 SENDGRID_API_KEY = "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"
+
+# wagtail media Config
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# URL that handles the media served from MEDIA_ROOT. Make sure to use a
+# trailing slash.
+# Examples: "http://example.com/media/", "http://media.example.com/"
+MEDIA_URL = '/media/'
 
 # Discord integration -- override these in local_settings
 DISCORD_CLIENT_ID = None
@@ -167,12 +197,12 @@ if os.path.exists(os.path.join(BASE_DIR, "hc/local_settings.py")):
 else:
     warnings.warn("local_settings.py not found, using defaults")
 
-class DisableMigrations(object):
-
-    def __contains__(self, item):
-        return True
-
-    def __getitem__(self, item):
-        return "notmigrations"
-
-MIGRATION_MODULES = DisableMigrations()
+# class DisableMigrations(object):
+#
+#     def __contains__(self, item):
+#         return True
+#
+#     def __getitem__(self, item):
+#         return "notmigrations"
+#
+# MIGRATION_MODULES = DisableMigrations()
